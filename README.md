@@ -1,19 +1,7 @@
 # androidExcel_library   
 
 使用方法
-       Add it in your root build.gradle at the end of repositories:
-
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
-    Step 2. Add the dependency
-
-	dependencies {
-	        implementation 'com.github.banshengfangzu:androidExcel_library:28d93584de'
-	}
+ 
 
 
     String filePath = "D:\\androidProject\\demo.xls";
