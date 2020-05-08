@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.nuaa.dmrfcoder.androidexceldemo.Bean.DemoBean;
+import cn.nuaa.dmrfcoder.androidexceldemo.Utils.ExcelReadUtils;
 import cn.nuaa.dmrfcoder.androidexceldemo.Utils.ExcelUtil;
 
 
@@ -83,6 +84,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         openButton.setOnClickListener(this);
         textView = findViewById(R.id.textView);
 
+        findViewById(R.id.new_open).setOnClickListener(this);
 
     }
 
@@ -134,9 +136,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.open_button:
                 openDir();
+            case R.id.new_open:
+                 showData();
             default:
                 break;
         }
+    }
+
+    private void showData() {
+//        String absolutePath =Environment.getExternalStoragePublicDirectory("").getAbsolutePath();
+        ExcelReadUtils.readExcel(new String[]{"倍率:", "胜场:" , "收益倍数:"});
+
     }
 
     private void openDir() {

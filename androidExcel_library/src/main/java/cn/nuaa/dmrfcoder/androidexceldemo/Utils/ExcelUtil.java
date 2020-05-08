@@ -1,17 +1,32 @@
 package cn.nuaa.dmrfcoder.androidexceldemo.Utils;
 
 import android.content.Context;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 
+import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.nuaa.dmrfcoder.androidexceldemo.Bean.DemoBean;
+import jxl.Cell;
+import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.format.Colour;
@@ -113,13 +128,6 @@ public class ExcelUtil {
     }
 
 
-
-
-
-
-
-
-
     /**
      * 初始化Excel表格
      *
@@ -127,7 +135,7 @@ public class ExcelUtil {
      * @param sheetName Excel表格的表名
      * @param colName   excel中包含的列名（可以有多个）
      */
-    public static void initExcel(String filePath, String sheetName, List<String>colName) {
+    public static void initExcel(String filePath, String sheetName, List<String> colName) {
         format();
         WritableWorkbook workbook = null;
         try {
@@ -160,10 +168,6 @@ public class ExcelUtil {
             }
         }
     }
-
-
-
-
 
 
     /**
@@ -312,6 +316,100 @@ public class ExcelUtil {
                 }
 
             }
+        }
+    }
+
+    //    public static final String[] titles = {"姓名", "手机号", "生日"};
+    public static final String config = "config";
+
+    /**
+     * 将制定类型的List写入Excel中
+     *
+     * @param
+     * @param fileName
+     * @param
+     * @param <T>
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void readObjListToExcel(Class<T> clazz, String fileName) {
+//        List<String> filedNames = ReflectDemoUtils.getFiledNames(clazz);
+
+//        WritableWorkbook writebook = null;
+//        InputStream out = null;
+        try {
+
+            ArrayList<Integer> neededColums = new ArrayList<>();
+//            String configStr = SpUtil.getInstance().getStringValue(ExcelUtil.config);
+//            WorkbookSettings setEncode = new WorkbookSettings();
+//            setEncode.setEncoding(UTF8_ENCODING);
+
+
+            FileInputStream in = new FileInputStream(new File(fileName));
+            Workbook wbb = Workbook.getWorkbook(in);
+            WritableWorkbook wb1 = Workbook.createWorkbook(new File(fileName), wbb);
+//            Workbook workbook = Workbook.getWorkbook(out);
+//            writebook = Workbook.createWorkbook(new File(fileName), workbook);
+            Sheet sheet = wb1.getSheet(0);
+            int columns = sheet.getColumns();
+            int rows = sheet.getRows();
+            Gson gson = new Gson();
+
+            SparseArray<String> usefulColums = new SparseArray<>();
+//            if (configStr == null || configStr.isEmpty()) {
+                Cell[] column = sheet.getColumn(0);
+                int length = column.length;
+
+                /**
+                 * 循环找出需要的列名
+                 */
+                List<String> filedNames = ReflectDemoUtils.getFiledNames(clazz);
+                out:
+                for (int i = 0; i < length; i++) {
+                    String contents = column[i].getContents();
+                    int size = filedNames.size();
+                    inner:
+                    for (int i1 = 0; i1 < size; i1++) {
+                        if (filedNames.get(i1).equals(contents)) {
+                            usefulColums.append(i, filedNames.get(i1));
+                            continue out;
+                        }
+                        if (i1 == size - 1) {
+//                            ToastUtils.showShort("没有找到该列" + filedNames.get(i1) + "-----，请注意关键词");
+                            System.out.println("没有找到该列" + filedNames.get(i1) + "-----，请注意关键词");
+                        }
+                    }
+                }
+                String s = gson.toJson(usefulColums);
+                SpUtil.getInstance().setStringValue(ExcelUtil.config, s);
+
+//            } else {
+//
+//                usefulColums = gson.fromJson(configStr, new TypeToken<SparseArray<String>>() {
+//                }.getType());
+//
+//            }
+
+            List<T> datas = new ArrayList<>();
+
+            int size = usefulColums.size();
+            for (int i = 0; i < (columns - 1); i++) {
+                T newInstance = clazz.newInstance();
+                for (int i1 = 0; i1 < size; i1++) {
+                    Cell cell = sheet.getCell(usefulColums.keyAt(i1), i);
+                    Method m = clazz.getMethod("set" + usefulColums.valueAt(i1));
+                    Field declaredField = newInstance.getClass().getDeclaredField(usefulColums.valueAt(i1));
+                    declaredField.set(newInstance,cell.getContents());
+
+                }
+                datas.add(newInstance);
+            }
+
+            LogUtils.e(datas);
+            System.out.println("输出完毕");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
         }
     }
 

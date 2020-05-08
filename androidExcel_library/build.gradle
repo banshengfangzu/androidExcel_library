@@ -1,9 +1,9 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
     defaultConfig {
-//        applicationId "cn.nuaa.dmrfcoder.androidexceldemo"
+        applicationId "cn.nuaa.dmrfcoder.androidexceldemo"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
@@ -26,5 +26,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation files('libs/jxl-2.6.12.jar')
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.blankj:utilcode:1.28.4'
 
 }
